@@ -4,12 +4,16 @@ description = ""
 tags = [
     "terraform",
     "openstack",
+    "OVH",
 ]
 date = "2018-08-21"
 categories = [
     "OVH",
     "openstack",
     "terraform",
+]
+topics = [
+    "using-ovh-openstack-public-cloud"
 ]
 highlight = "true"
 +++

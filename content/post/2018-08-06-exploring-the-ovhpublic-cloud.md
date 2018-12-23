@@ -2,11 +2,16 @@
 title = "Exploring the OVH public cloud and opensource tools that can use it."
 description = ""
 tags = [
-    "vagrant",
+    "openstack",
+    "OVH",
 ]
 date = "2018-08-06"
 categories = [
-    "vagrant",
+    "openstack",
+    "OVH",
+]
+topics = [
+    "using-ovh-openstack-public-cloud"
 ]
 highlight = "true"
 +++

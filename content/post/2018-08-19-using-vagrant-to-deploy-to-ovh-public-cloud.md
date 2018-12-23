@@ -12,6 +12,9 @@ categories = [
     "openstack",
     "OVH",
 ]
+topics = [
+    "using-ovh-openstack-public-cloud"
+]
 highlight = "true"
 +++
 

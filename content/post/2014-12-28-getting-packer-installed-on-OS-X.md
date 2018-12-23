@@ -3,12 +3,15 @@ title = "Using packer on OS X to create an ESXi .box template for vagrant deploy
 description = ""
 tags = [
     "packer",
-    "vsphere",
+    "fusion",
 ]
 date = "2014-12-28"
 categories = [
     "vagrant",
-    "vsphere",
+    "fusion",
+]
+topics = [
+    "using-packer-with-fusion"
 ]
 highlight = "true"
 +++

@@ -8,6 +8,9 @@ date = "2014-04-20"
 categories = [
     "vagrant",
 ]
+topics = [
+    "using-vagrant-with-vsphere"
+]
 highlight = "true"
 +++
 

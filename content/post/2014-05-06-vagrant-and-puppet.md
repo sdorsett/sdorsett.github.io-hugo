@@ -10,6 +10,9 @@ categories = [
     "vagrant",
     "puppet",
 ]
+topics = [
+    "using-vagrant-with-vsphere"
+]
 highlight = "true"
 +++
 

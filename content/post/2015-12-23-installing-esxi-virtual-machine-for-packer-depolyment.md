@@ -10,6 +10,9 @@ categories = [
     "packer",
     "vsphere",
 ]
+topics = [
+    "using-packer-with-esxi"
+]
 highlight = "true"
 +++
 

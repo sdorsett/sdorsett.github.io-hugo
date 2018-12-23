@@ -36,12 +36,23 @@ paginate = 10
     identifier = "post"
     url = "/post/"
   [[menu.main]]
-    name = "About"
-    pre = "<i class='fa fa-user fa-fw'></i>"
+    name = "Topics"
+    pre = "<i class='fa fa-folder fa-fw'></i>"
     weight = 3
-    identifier = "about"
-    url = "/about/"
-
+    identifier = "topics"
+    url = "/topics/"
+  [[menu.main]]
+    name = "Tags"
+    pre = "<i class='fa fa-tags fa-fw'></i>"
+    weight = 5
+    identifier = "tags"
+    url = "/tags/"
+  [[menu.main]]
+    name = "Favorites"
+    pre = "<i class='fa fa-folder fa-fw'></i>"
+    weight = 6
+    identifier = "links"
+    url = "https://github.com/sdorsett/interesting-links"
 [social]
   # Link your social networking accouns to the side menu
   # by entering your username or ID.

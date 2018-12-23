@@ -12,6 +12,9 @@ categories = [
     "ovftool",
     "vagrant",
 ]
+topics = [
+    "using-packer-with-esxi"
+]
 highlight = "true"
 +++
 

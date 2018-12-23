@@ -2,13 +2,16 @@
 title = "Using packer on CentOS 6.5 to create an ESXi .box template for vagrant deployment"
 description = ""
 tags = [
-    "vagrant",
+    "packer",
     "vsphere",
 ]
 date = "2015-01-03"
 categories = [
-    "vagrant",
+    "packer",
     "vsphere",
+]
+topics = [
+    "using-packer-with-esxi"
 ]
 highlight = "true"
 +++

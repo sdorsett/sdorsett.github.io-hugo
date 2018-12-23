@@ -8,6 +8,9 @@ date = "2015-12-22"
 categories = [
     "packer",
 ]
+topics = [
+    "using-packer-with-esxi"
+]
 highlight = "true"
 +++
 

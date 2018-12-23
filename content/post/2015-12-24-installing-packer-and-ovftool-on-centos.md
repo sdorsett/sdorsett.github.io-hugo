@@ -10,6 +10,9 @@ categories = [
     "packer",
     "ovftool",
 ]
+topics = [
+    "using-packer-with-esxi"
+]
 highlight = "true"
 +++
 

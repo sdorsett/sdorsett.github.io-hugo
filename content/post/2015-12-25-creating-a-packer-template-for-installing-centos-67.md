@@ -10,6 +10,9 @@ categories = [
     "vagrant",
     "packer",
 ]
+topics = [
+    "using-packer-with-esxi"
+]
 highlight = "true"
 +++
 

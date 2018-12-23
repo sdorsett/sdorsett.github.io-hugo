@@ -10,6 +10,9 @@ categories = [
     "vagrant",
     "vagrant-cloud",
 ]
+topics = [
+    "using-vagrant-with-vcloud-director"
+]
 highlight = "true"
 +++
 

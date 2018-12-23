@@ -8,6 +8,9 @@ date = "2014-04-02"
 categories = [
     "vagrant",
 ]
+topics = [
+    "using-vagrant"
+]
 highlight = "true"
 +++
 Vagrant, according to the [documentation](http://docs.vagrantup.com/v2/why-vagrant/), provides a "disposable environment and consistent workflow for developing and testing infrastructure management scripts. You can quickly test things like shell scripts, Chef cookbooks, Puppet modules, and more using local virtualization such as VirtualBox or VMware. Then, with the same configuration, you can test these scripts on remote clouds such as AWS or RackSpace with the same workflow."

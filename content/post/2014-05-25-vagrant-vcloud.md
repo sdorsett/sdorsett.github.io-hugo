@@ -3,10 +3,15 @@ title = "Introducing the vagrant-vcloud provider"
 description = ""
 tags = [
     "vagrant",
+    "vagrant-vcloud",
 ]
 date = "2014-05-25"
 categories = [
     "vagrant",
+    "vagrant-cloud",
+]
+topics = [
+    "using-vagrant-with-vcloud-director",
 ]
 highlight = "true"
 +++
