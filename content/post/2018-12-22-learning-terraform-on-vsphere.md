@@ -28,6 +28,7 @@ The posts in this series of blogs that have been released are:
 
  - <a href="../2018-12-23-using-environment-variables-with-terraform">Using environment variables with terraform</a>
  - <a href="../2018-12-24-using-terraform-to-clone-a-virtual-machine-on-vsphere">Using terraform to clone a virtual machine on vSphere</a>
+ - <a href="../2018-12-24-using-gitignore-to-keep-terraform-secrets-secret">Using .gitignore to keep terraform secrets secret</a>
 
 ---
 
