@@ -471,7 +471,7 @@ Destroy complete! Resources: 1 destroyed.
 [root@terraform terraform-vsphere-clone]#
 {{< /highlight >}}
 
-#### I hope this post has been useful in demonstrating how to clone a vsphere virtual machine from template using terraform.
+#### I hope this post has been useful in demonstrating how to clone a vsphere virtual machine from template using terraform. The .tf files that were using in this post can be found in <a href="https://github.com/sdorsett/terraform-vsphere-clone">this github repository</a>.
 
 ---
 

@@ -224,7 +224,8 @@ We can now refresh the github remote repository and validate the files were comm
 
 The files are present in the repository and the latest commit message matches the local commit that was made.
 
-#### Hopefully you found this post helpful in understanding how to use a .gitignore file to keep environment specific secrets out of a public github repository.  
+#### Hopefully you found this post helpful in understanding how to use a .gitignore file to keep environment specific secrets out of a public github repository. The repository that was used in this post can be <a href="https://github.com/sdorsett/terraform-vsphere-clone">found here</a>.
+ 
 
 ---
 
