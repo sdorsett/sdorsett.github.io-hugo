@@ -13,7 +13,7 @@ topics = [
 ]
 highlight = "true"
 +++
-This is the first in a series of posts that will walk you through using terraform to deploy and configure virtual machines on vsphere. In this post you will get introduced to using environment variables to keep details obout the vsphere infrastructureout of the terraform code. 
+This is the first in a series of posts that will walk you through using terraform to deploy and configure virtual machines on vsphere. In this post you will get introduced to using environment variables to keep details obout the vsphere infrastructure out of the terraform code. 
 
 There is nothing vsphere specific in this post, but it is more about showing a pattern for keeping deployment specifics out of terraform code.
 
@@ -27,7 +27,7 @@ There is nothing vsphere specific in this post, but it is more about showing a p
 [root@terraform terraform-test]#
 {{< /highlight >}}
 
-### 2. Create a a test.tf file containing our test variable and code for diplaying this value.
+### 2. Create a test.tf file containing our test variable and code for diplaying this value.
 
 All terraform code needs to be stored in files that end with .tf. In future posts you will see us keep variables in a seperate file than other terraform code, but today We will create a single .tf file that will contains all the code for this post.  
 
