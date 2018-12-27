@@ -1439,7 +1439,7 @@ Destroy complete! Resources: 2 destroyed.
 [root@terraform terraform-vsphere-kubernetes]#
 {{< /highlight >}}
 
-#### I hope this post has been useful in demonstrating how to clone a vsphere virtual machine from template using terraform. The files that were using in this post can be found in <a href="https://github.com/sdorsett/terraform-vsphere-kubernetes">this github repository</a>.
+#### I hope this post has been useful in demonstrating how to use `local-exec` and `remote-exec` provisioners to configure virtual machines deployed by terraform. The files that were using in this post can be found in <a href="https://github.com/sdorsett/terraform-vsphere-kubernetes">this github repository</a>.
 
 ---
 
