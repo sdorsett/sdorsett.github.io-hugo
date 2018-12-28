@@ -18,9 +18,9 @@ topics = [
 highlight = "true"
 +++
 
-This is the fourth in a series of posts that will walk you through using terraform to deploy and configure virtual machines on vsphere. In this post you will get introduced to using local-exec and remote-exe provisioners to make local (on the deloying system) and remote (on the deployed system) changes. If everything goes right we will also have a functional kubernetes controller that we can build on in future posts.
+This is the fourth in a series of posts that will walk you through using terraform to deploy and configure virtual machines on vsphere. In this post you will get introduced to using local-exec and remote-exec provisioners to make local (on the deloying system) and remote (on the deployed system) changes. If everything goes right we will also have a functional kubernetes controller when we finish that we can build on in future posts.
 
-One thing to mention early on in this post is that it is written expecting to deploy from a CentOS 7 template. All the bash scripts we will be using to configure the deployed virtual machine are written to install and configure a CentOS 7 virtual machine, so consider yourself warned. 
+One thing to mention early on in this post is that it is written around CentOS 7. The expectation is that you will be deploying from a CentOS 7 template. All the bash scripts we will be using to configure the deployed virtual machine are written to install and configure a CentOS 7 virtual machine, so consider yourself warned. 
 
 ---
 
@@ -144,7 +144,21 @@ virtual_machine_kubernetes_controller = {
 [root@terraform terraform-vsphere-kubernetes]#
 {{< /highlight >}}
 
-### 4. Create `kubernetes_controller.tf` to contain our terraform code for creating the kubernetes_controller virtual machine.
+### 4. Create `ssh-key.tf` to contain our terraform code for creating a ssh key used to connect to the deployed virtual machine.
+
+The following is the terraform code that I used to create a ssh key. It is using the `local-exec` provisioner to run command on the machine that is running the terraform code.
+
+{{< highlight bash >}}
+[root@terraform terraform-vsphere-kubernetes]# cat ssh-key.tf
+resource "null_resource" "generate-sshkey" {
+    provisioner "local-exec" {
+        command = "yes y | ssh-keygen -b 4096 -t rsa -C 'terraform-vsphere-kubernetes' -N '' -f ${var.virtual_machine_kubernetes_controller.["private_key"]}"
+    }
+}
+[root@terraform terraform-vsphere-kubernetes]#
+{{< /highlight >}}
+
+### 5. Create `kubernetes_controller.tf` to contain our terraform code for creating the kubernetes_controller virtual machine.
 
 Next we will create `kubernetes_controller.tf` to contain the terraform code that will create the virtual machine resource:
  
@@ -281,13 +295,13 @@ resource "vsphere_virtual_machine" "kubernetes_controller" {
 
 There are several things in this `.tf` that are different from the the previous post:
 
-* variables are now using the var.<variable_name>.["<property>"] format. As I mentioned earlier this makes our variables.tf file more logical in how it is organized
-* the `vsphere_virtual_machine.kubernetes_controller` resource that is being deployed has a `customize` block that describes guest customization that need to be applied to the deploye virtual machine. This allows us to specify that IP address, netmask, gateway, DNS server and hostname of the deployed virtual machine.
-* the `vsphere_virtual_machine.kubernetes_controller` resource has provisioner blocks that allow us to copy files and remotely run commands on the deployed virtual machine.
+* variables are now using the var.<variable_name>.['property_name'] format. As I mentioned earlier this makes our variables.tf file more logical in how it is organized
+* the `vsphere_virtual_machine.kubernetes_controller` resource that is being deployed has a `customize` block that describes guest customization that need to be applied to the deployed virtual machine. This allows us to specify that IP address, netmask, gateway, DNS server and hostname of the deployed virtual machine.
+* the `vsphere_virtual_machine.kubernetes_controller` resource has provisioner blocks that will copy files and remotely run commands on the deployed virtual machine.
 
 The provisioner blocks that perform the configuration of the deployed virtual machine are the following:
 
-* the `file` provisioner is used to copy the ssh public key to `/tmp/authorized_keys` on the deployed virtual machine. I want to point out that the connection block will be using the `password` parameter to use the default password setup in the template to connect.
+* the first provisioner is a `file` provisioner used to copy the ssh public key to `/tmp/authorized_keys` to the deployed virtual machine. I want to point out that the connection block will be using the `password` parameter to use the default password setup in the template to connect.
 
 {{< highlight bash >}}
   provisioner "file" {
@@ -302,7 +316,7 @@ The provisioner blocks that perform the configuration of the deployed virtual ma
   }
 {{< /highlight >}}
 
-* the `remote-exec` provisioner will run the command listed in the inline block on the deployed virtual machine. The commands will move the `/tmp/authorized_keys` file that was copied in the previous step to `/root/.ssh/` and change the permissions. This block will finally disable password ssh authentication in `/etc/ssh/sshd_config` and restart the sshd service so the changes take affect: 
+* the second provisioner is a `remote-exec` provisioner that will run the command listed in the inline block on the deployed virtual machine. The commands will move the `/tmp/authorized_keys` file that was copied in the previous step to `/root/.ssh/` and change the permissions. This block will finally disable password ssh authentication in `/etc/ssh/sshd_config` and restart the sshd service so the changes take affect: 
 
 {{< highlight bash >}}
   provisioner "remote-exec" {
@@ -322,7 +336,7 @@ The provisioner blocks that perform the configuration of the deployed virtual ma
   }
 {{< /highlight >}}
 
-* The next `file` provisioner block will copy all files located in the local `scripts/` directory to `/tmp/` on the deployed virtual machine. Notice that the connection block is no longer using the `password` option, but is now using `private_key` to connect using the ssh key that will be generated. 
+* The third provisioner is a `file` provisioner block that will copy all files located in the local `scripts/` directory to `/tmp/` on the deployed virtual machine. Notice that the connection block is no longer using the `password` option, but is now using `private_key` to connect using the ssh key that will be generated. 
 
 {{< highlight bash >}}
   provisioner "file" {
@@ -337,7 +351,7 @@ The provisioner blocks that perform the configuration of the deployed virtual ma
   }
 {{< /highlight >}}
 
-* the last `remote-exec` block will make all the `.sh` files in `/tmp/` executable, run the listed `.sh` files and finally output a line from `/tmp/kubeadm_init_output.txt` that is denerated when running the `/tmp/kubeadm_init.sh` script:
+* the last provisioner is a `remote-exec` provisioner that will make all the `.sh` files in `/tmp/` executable, run the listed `.sh` files and finally output a line from `/tmp/kubeadm_init_output.txt` that is generated when running the `/tmp/kubeadm_init.sh` script:
 
 {{< highlight bash >}}
   provisioner "remote-exec" {
@@ -358,16 +372,16 @@ The provisioner blocks that perform the configuration of the deployed virtual ma
 {{< /highlight >}}
 
 
-### 5. Create the `scripts directory and the files that will be repotely run to configure the virtual machine as needed
+### 6. Create the `scripts` directory and the files that will be remotely run to configure the deployed virtual machine.
 
-* We now need to create the scripts that the last `remote-exec` provisioner will be running on the deployed virtual machine. First create the scripts directory:
+* We now need to create the scripts that will be run remotely on the deployed virtual machine. First create the scripts directory:
 
 {{< highlight bash >}}
 [root@terraform terraform-vsphere-kubernetes]# mkdir scripts
 [root@terraform terraform-vsphere-kubernetes]#
 {{< /highlight >}}
 
-* Secondly we need to create the `system_setup.sh` that will disable swap, disable the firewall and disable SELINUX 
+* The first script will be the `system_setup.sh` that will disable swap, disable the firewall and disable SELINUX 
 
 {{< highlight bash >}}
 [root@terraform terraform-vsphere-kubernetes]# cat scripts/system_setup.sh
@@ -463,7 +477,7 @@ sysctl --system
 [root@terraform terraform-vsphere-kubernetes]#
 {{< /highlight >}}
 
-* the last script we will run is `kubeadm_init.sh` which will run the kubeadmin command to initialized a kubernetes controller on the deployed virtual machine:
+* the last script we will run is `kubeadm_init.sh` which will run the kubeadmin command to initialize a kubernetes controller on the deployed virtual machine. This script will also install flannel which is used for network communication with in the kubernetes cluster.
 
 {{< highlight bash >}}
 [root@terraform terraform-vsphere-kubernetes]# cat scripts/kubeadm_init.sh
@@ -486,7 +500,7 @@ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documen
 [root@terraform terraform-vsphere-kubernetes]#
 {{< /highlight >}}
 
-### 6. Create `output.tf` containing the information we want terraform to return after a run completes.
+### 7. Create `output.tf` containing the information we want terraform to return after a run completes.
 
 In the output.tf you can specify what information terraform should display after the run completes. 
 
@@ -503,20 +517,6 @@ output "vm-moref" {
 {{< /highlight >}}
 
 In this example, just like in the previous post,  terraform will return the ip address and moref of the virtual machine created.
-
-### 7. Create `ssh-key.tf` to contain our terraform code for creating a ssh key for connecting to the deployed virtual machine.
-
-The following is the terraform code that I used to create a ssh key. It is using the `local-exec` provisioner to run command on the machine that is running the terraform code.
-
-{{< highlight bash >}}
-[root@terraform terraform-vsphere-kubernetes]# cat ssh-key.tf
-resource "null_resource" "generate-sshkey" {
-    provisioner "local-exec" {
-        command = "yes y | ssh-keygen -b 4096 -t rsa -C 'terraform-vsphere-kubernetes' -N '' -f ${var.virtual_machine_kubernetes_controller.["private_key"]}"
-    }
-}
-[root@terraform terraform-vsphere-kubernetes]#
-{{< /highlight >}}
 
 ### 8. Run `terraform init` to initialize terraform and downloaded the provisioners.
 
@@ -683,7 +683,7 @@ can't guarantee that exactly these actions will be performed if
 
 ### 10. Run `terraform apply` to create the described resources.
 
-Running `terraform apply --auto-approve` will have terraform create the resource described in `main.tf`:
+Running `terraform apply --auto-approve` will have terraform create the resources described in both `kubernetes_controller.tf` and `ssh-key.tf`:
 
 {{< highlight bash >}}
 [root@terraform terraform-vsphere-kubernetes]# terraform apply --auto-approve
@@ -831,11 +831,11 @@ vsphere_virtual_machine.kubernetes_controller (remote-exec):   Checking Host Key
 vsphere_virtual_machine.kubernetes_controller (remote-exec): Connected!
 vsphere_virtual_machine.kubernetes_controller (remote-exec): Redirecting to /bin/systemctl restart sshd.service
 {{< /highlight >}}
-The first `remote-exec` block has just moved the ssh public key to the proper location, disabled ssh password authentioned and the restarted sshd service.
+The first `remote-exec` block has just moved the ssh public key to the proper location, disabled ssh password authentication and the restarted the sshd service.
 {{< highlight bash >}}
 vsphere_virtual_machine.kubernetes_controller: Provisioning with 'file'...
 {{< /highlight >}}
-The `./scripts/` files have now been copied to the deploy virtual machine. Next the `scripts\install_docker.sh` script will run remotely to install the necessary packages.
+The `./scripts/` files have now been copied to the deploy virtual machine. Next the `scripts\install_docker.sh` script will run remotely to install the necessary packages to install docker.
 {{< highlight bash >}}
 vsphere_virtual_machine.kubernetes_controller: Provisioning with 'remote-exec'...
 vsphere_virtual_machine.kubernetes_controller (remote-exec): Connecting to remote host via SSH...
@@ -1345,7 +1345,7 @@ vsphere_virtual_machine.kubernetes_controller (remote-exec): net.bridge.bridge-n
 vsphere_virtual_machine.kubernetes_controller (remote-exec): net.bridge.bridge-nf-call-iptables = 1
 vsphere_virtual_machine.kubernetes_controller (remote-exec): * Applying /etc/sysctl.conf ...
 {{< /highlight >}}
-Finally the `./script/kubeadm_init.sh` script will be remotely run that will pull down the kubernetes docker images, perform a `kubeadm init` in stand up the kubernetes controller and configure the flannel network componants:
+Finally the `./script/kubeadm_init.sh` script will be remotely run that will pull down the kubernetes docker images, perform a `kubeadm init` to stand up the kubernetes controller and configure the flannel network componants:
 {{< highlight bash >}}
 vsphere_virtual_machine.kubernetes_controller (remote-exec): --> pull kubeadm images <--
 vsphere_virtual_machine.kubernetes_controller (remote-exec): [config/images] Pulled k8s.gcr.io/kube-apiserver:v1.13.1
@@ -1386,15 +1386,15 @@ vm-moref = vm-1131
 [root@terraform terraform-vsphere-kubernetes]#
 {{< /highlight >}}
 
-The bottom of the `terraform appy` displays the IP address and moref of the vm that was specified in the `output.tf` file. I also want to point out the output returned in the last `remote-exec` block:
+The bottom of the `terraform apply` displays the IP address and moref of the vm that was specified in the `output.tf` file. I also want to point out the output returned at the bottom of the last `remote-exec` block:
 
 kubeadm join 192.168.100.100:6443 --token 4xr954.lv1sp4plkapb0eza --discovery-token-ca-cert-hash sha256:0d972b6d7e08ebef346a8cf14ea4bcf88b9341351d7ec4d488defdbb4761e5e8
 
-This is the `kubeadm join` command that can be run on any kubernetes node to join them to the kubernetes controller we initialized.
+This is the `kubeadm join` command can be run on any kubernetes node to join them to the kubernetes cluster that was initialized with `kubeadm init`. We will not be taking this any farther in this post, but we will use this command output in future posts to join deployed kubernetes nodes to the cluster that was just created. 
 
 ### 11. Validate `kubectl` is working by connecting to the deployed virtual machine.
 
-You can no longer ssh to the deployed virtual machine using the password from the template, but you can use the ssh key generated to connect without a password like in the following example: 
+Since ssh password authentication has been disabled, you will no longer be able to ssh to the deployed virtual machine using the password from the template. Instead you must now use the ssh key generated to connect without a password like in the following example: 
 
 {{< highlight bash >}}
 [root@terraform terraform-vsphere-kubernetes]# ssh root@192.168.100.100 -i /root/.ssh/id_rsa-terraform-vsphere-kubernetes
