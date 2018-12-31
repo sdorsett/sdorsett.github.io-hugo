@@ -31,6 +31,7 @@ The posts in this series of blogs that have been released are:
  - <a href="../2018-12-24-using-gitignore-to-keep-terraform-secrets-secret">Using .gitignore to keep terraform secrets secret</a>
  - <a href="../2018-12-26-using-local-exec-and-remote-exec-provisioners-with-terraform">Using local-exec and remote-exec provisioners with terraform</a>
  - <a href="../2018-12-28-using-an-external-data-source-with-terraform">Using an exteral data source with terraform</a>
+ - <a href="../2018-12-30-adding-kubernetes-nodes-and-exploring-terraform-interpolation-syntax">Adding kubernetes nodes and exploring terraform interpolation syntax</a>
 
 ---
 
