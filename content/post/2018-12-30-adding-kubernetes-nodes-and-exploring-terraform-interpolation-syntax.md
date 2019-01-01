@@ -21,7 +21,7 @@ This is the sixth in a series of posts that will walk you through using terrafor
 
 ---
 
-### 1. Clone the `https://github.com/sdorsett/terraform-vsphere-kubernetes` repository and switch to the '2018-12-28-post' branch..
+### 1. Clone the `'https://github.com/sdorsett/terraform-vsphere-kubernetes'` repository and switch to the `'2018-12-28-post'` branch..
 
 We will start by cloning down the `https://github.com/sdorsett/terraform-vsphere-kubernetes` repository:
 
@@ -56,15 +56,15 @@ HEAD is now at 489b7b7... added updated files for 2018-12-28 post
 [root@terraform terraform-vsphere-kubernetes]#
 {{< /highlight >}}
 
-### 2. Update `variables.tf` to add a new variable block for the variables we will need to descirbe the kubernetes node virtual machines. 
+### 2. Update `'variables.tf'` to add a new block for the variables we will need to describe the kubernetes node virtual machines. 
 
 The variables needed for the kubernetes nodes will be similar to what we used for the kubernetes controller, but there will be need to have the following new ones:
 
-* count - this variable will specify the number of kubernetes nodes to deploy
-* ip_address_network - this variables will specify the IP address range in CIDR notation that the kubernetes nodes will be deployed to
-* starting_hostnum - this variable will specify the host number, within the ip_address_network that the first kubernetes node will use. The following kubernetes nodes will increment up from this host number.
+* `count` - this variable will specify the number of kubernetes nodes to deploy
+* `ip_address_network` - this variable will specify the IP address range in CIDR notation that the kubernetes nodes will be deployed to
+* `starting_hostnum` - this variable will specify the host number, with in the ip_address_network that the first kubernetes node will use. The following kubernetes nodes will increment up from this host number.
 
-The ip_address and netmask variables are no longer needed since these pieces of information can be derived from the two new variables.
+The `ip_address` and `netmask` variables are not needed since these pieces of information can be derived from the two new variables.
 
 {{< highlight bash >}}
 [root@terraform terraform-vsphere-kubernetes]# cat variables.tf
@@ -103,7 +103,7 @@ variable "virtual_machine_kubernetes_node" {
 [root@terraform terraform-vsphere-kubernetes]#
 {{< /highlight >}}
 
-### 3. Update 'terraform.tfvar' and set the values for the virtual_machine_kubernetes_nodes variables
+### 3. Update `'terraform.tfvar'` and set the values for the `'virtual_machine_kubernetes_nodes'` variables
 
 {{< highlight bash >}}
 [root@terraform terraform-vsphere-kubernetes]# cat terraform.tfvars
@@ -141,9 +141,9 @@ virtual_machine_kubernetes_node = {
 [root@terraform terraform-vsphere-kubernetes]#
 {{< /highlight >}}
 
-I think it is a good idea to set the count to `'1'` while testing, to minimize the deployment time. Once you are confident one kubernetes node is deploying properly, you can then increase the count to the actual number you are wanting to have deployed. 
+I think it is a good idea to set the count to `'1'` while testing to minimize the deployment time. Once you are confident one kubernetes node is deploying properly, you can then increase the count to the actual number you are wanting to have deployed. 
 
-### 4. Add 'kubernetes_nodes.tf' that will describe how to kubernetes nodes will be deployed and configured.
+### 4. Add 'kubernetes_nodes.tf' that will describe how the kubernetes nodes will be deployed and configured.
 
 Much of the terraform code for deploying the kubernetes nodes can be copied from the kubernetes controller code.
 
@@ -278,15 +278,19 @@ resource "null_resource" "kubeadm_join" {
 [root@terraform terraform-vsphere-kubernetes]#
 {{< /highlight >}}
 
-There are differences in the `'vsphere_virtual_machine.kubernetes_nodes'` resource that were not in the `'vsphere_virtual_machine.kubernetes_controller'` resource: 
+There are several differences of note between the `'vsphere_virtual_machine.kubernetes_nodes'` resource and the `'vsphere_virtual_machine.kubernetes_controller'` resource: 
 
-* count = "${var.virtual_machine_kubernetes_node.["count"]}" - the number of kubernetes node virtual machines we want to have deployed. The `'count.index'` starts with 0 and will repeat the number of time specified by `'count.'`
-* name = "${format("${var.virtual_machine_kubernetes_node.["prefix"]}-%03d", count.index + 1)}" - the format command sets the name of the virtual machine by starting with the `'prefix'` followed by `'-'` and finally the `'count.index'` specified as a 3 digit integer.
+* count = "${var.virtual_machine_kubernetes_node.["count"]}"<br>
+This describes the number of kubernetes node virtual machines we want to have deployed. The `'count.index'` starts with 0 and will repeat the number of time specified by `'count.'`
+* name = "${format("${var.virtual_machine_kubernetes_node.["prefix"]}-%03d", count.index + 1)}"<br>
+The format command sets the name of the virtual machine by starting with the `'prefix'` followed by `'-'` and finally the `'count.index'` specified as a 3 digit integer.
 * hostname = "${format("${var.virtual_machine_kubernetes_node.["prefix"]}-%03d", count.index + 1)}" - the same as `'name'`
-* ipv4_address = "${cidrhost( var.virtual_machine_kubernetes_node.["ip_address_network"], var.virtual_machine_kubernetes_node.["starting_hostnum"]+count.index )}" - `'cidrhost'` takes an IP address range in CIDR notation and creates an IP address with the given host number.
-* ipv4_netmask = "${element( split("/", var.virtual_machine_kubernetes_node.["ip_address_network"]), 1)}" - `'split'` will create  list of strings, splitting `'var.virtual_machine_kubernetes_node.["ip_address_network"]'` on the `'/'` character. `'element'` will take an element from a list, in this case taking the `'1'` element (which is the second since numbering starts with `'0'`.).
+* ipv4_address = "${cidrhost( var.virtual_machine_kubernetes_node.["ip_address_network"], var.virtual_machine_kubernetes_node.["starting_hostnum"]+count.index )}"<br>
+`'cidrhost'` takes an IP address range in CIDR notation and creates an IP address with the given host number.
+* ipv4_netmask = "${element( split("/", var.virtual_machine_kubernetes_node.["ip_address_network"]), 1)}"<br>
+`'split'` will create  list of strings, splitting `'var.virtual_machine_kubernetes_node.["ip_address_network"]'` on the `'/'` character. `'element'` will take an element from a list, in this case taking the `'1'` element (which is the second since numbering starts with `'0'`.).
 
-The other difference from the `'vsphere_virtual_machine.kubernetes_controller'` resource is the `'null_resource.kubeadm_join'` resource:
+Another difference from the `'vsphere_virtual_machine.kubernetes_controller'` resource is the `'null_resource.kubeadm_join'` resource:
 
 {{< highlight bash >}}
 resource "null_resource" "kubeadm_join" {
@@ -305,9 +309,9 @@ resource "null_resource" "kubeadm_join" {
 }
 {{< /highlight >}}
 
-In the `'null_resource.kubeadm_join'` the IP address of the current kubernetes_node is determined by using `'element'` to select the `'count.index'` element from the list returned by `'vsphere_virtual_machine.kubernetes_nodes.*.default_ip_address'`. Als the `'remote-exec'` command is using the `'token'` and `'certhash'` properties returned from the external data resource that was created in the previous post.
+In the `'null_resource.kubeadm_join'` the connection host parameter is connecting to the IP address of the current kubernetes_node. This is determined by using `'element'` to select the `'count.index'` element from the list returned by `'vsphere_virtual_machine.kubernetes_nodes.*.default_ip_address'`. The `'remote-exec'` command is using the `'token'` and `'certhash'` properties returned from the external data resource that was created in the previous post.
 
-### 5. Update the `'output.tf'` file to display the IP addresses of the node virtual machines that were deployed.
+### 5. Update the `'output.tf'` file to display the IP addresses and moregs of the node virtual machines that were deployed.
 
 {{< highlight bash >}}
 [root@terraform terraform-vsphere-kubernetes]# cat output.tf
@@ -330,7 +334,7 @@ output "kubeadm-init-info" {
 [root@terraform terraform-vsphere-kubernetes]#
 {{< /highlight >}}
 
-### 6. Run `terraform init` to initialize terraform and downloaded the provisioners.
+### 6. Run `'terraform init'` to initialize terraform and downloaded the provisioners.
 
 {{< highlight bash >}}
 [root@terraform terraform-vsphere-kubernetes]# terraform init
@@ -361,7 +365,7 @@ commands will detect it and remind you to do so if necessary.
 [root@terraform terraform-vsphere-kubernetes]#
 {{< /highlight >}}
 
-### 7. Run `terraform plan` to have terraform show what will get created.
+### 7. Run `'terraform plan'` to have terraform show what will get created.
 
 {{< highlight bash >}}
 [root@terraform terraform-vsphere-kubernetes]# terraform plan
@@ -700,7 +704,7 @@ node_vm-morefs = [
 [root@terraform terraform-vsphere-kubernetes]#
 {{< /highlight >}}
 
-The bottom of the `terraform appy` now displays the `'node_ips'` and `'node_vm-morefs'`. If you look up in the output to the `null_resource.kubeadm_join (remote-exec):` lines, you will notice that  `'This node has joined the cluster'` 
+The bottom of the `'terraform appy'` now displays the `'node_ips'` and `'node_vm-morefs'`. If you look up in the output to the `null_resource.kubeadm_join (remote-exec):` lines, you will notice that  `'This node has joined the cluster'` which suggests that the `'kubeadm join'` command completed successfully. 
 
 ### 9. Validate that the node has successfully joined to cluster by running `'kubectl get nodes`' on the kubernetes controller virtual machine:
 
@@ -713,9 +717,9 @@ kubernetes-node-001     Ready    <none>   12m   v1.13.1
 [root@terraform terraform-vsphere-kubernetes]#
 {{< /highlight >}}
 
-### 10. Run `terraform destroy` to delete the resources that were previously created.
+### 10. Run `'terraform destroy'` to delete the resources that were previously created.
 
-Once you are ready to destroy the virtual machine terraform created, you can simply run `terraform destroy --force` to have terraform destroy it:
+We should not validate that we can deploy more than one kubernetes node. In order to to that we should destroy the virtual machines terraform created so they can be redeployed with 3 kubernetes nodes.
 
 {{< highlight bash >}}
 [root@terraform terraform-vsphere-kubernetes]# terraform destroy --force
@@ -753,9 +757,9 @@ Destroy complete! Resources: 5 destroyed.
 [root@terraform terraform-vsphere-kubernetes]#
 {{< /highlight >}}
 
-### 11. Update `'vim terraform.tfvars'` to specify a kubernetes_nodes count of 3 and re-run `'terraform apply`'
+### 11. Update `'terraform.tfvars'` to specify a count of 3 and re-run `'terraform apply`'
 
-Modify `'virtual_machine_kubernetes_node["count"]'` to be "3":
+Modify the `'count'` value in the`'virtual_machine_kubernetes_node'` block to be "3":
 
 {{< highlight bash >}}
 [root@terraform terraform-vsphere-kubernetes]# tail -n 11 terraform.tfvars
@@ -773,7 +777,7 @@ virtual_machine_kubernetes_node = {
 [root@terraform terraform-vsphere-kubernetes]#
 {{< /highlight >}}
 
-Re-run `'terraform apply --auto-approve'` to deploy the desribed resources:
+Re-run `'terraform apply --auto-approve'` to deploy the updated resources:
 
 {{< highlight bash >}}
 [root@terraform terraform-vsphere-kubernetes]# terraform apply --auto-approve
@@ -797,6 +801,7 @@ null_resource.ssh-keygen-delete: Creation complete after 0s (ID: 656601913599969
 ...
 
 ...
+
 Apply complete! Resources: 9 added, 0 changed, 0 destroyed.
 
 Outputs:
@@ -835,7 +840,7 @@ kubernetes-node-003     Ready    <none>   118s    v1.13.1
 [root@terraform terraform-vsphere-kubernetes]#
 {{< /highlight >}}
 
-#### I hope this post has been useful in demonstrating how to use `'count'` to create multiple instances of the same resource and interpolation to transform variables and lists. The files that were using in this post can be found in <a href="https://github.com/sdorsett/terraform-vsphere-kubernetes/tree/2018-12-30-post">this github repository</a>.
+#### I hope this post has been useful in demonstrating how to use `'count'` to create multiple instances of a resource and interpolation to transform variables and lists. The files that were using in this post can be found in <a href="https://github.com/sdorsett/terraform-vsphere-kubernetes/tree/2018-12-30-post">this github repository</a>.
 
 ---
 
