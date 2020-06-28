@@ -18,7 +18,7 @@ highlight = "true"
 
 This is the second in a series of posts that will walk you through using the Openstack-based OVH public cloud. In this post you will get introduced to using the Openstack cli to create an Openstack server.
 
-This post is assumes you have already signed up for an account with ovhcloud.com, added a payment method and created a cloud project. If you have not done these steps you can follow <a href="../2018-08-08-creating-an-openstack-instance-on-ovh-public-cloud">the first blog post</a> in this series that will walk you through completing those steps. 
+This post is assumes you have already signed up for an account with ovhcloud.com, added a payment method and created a cloud project. If you have not done these steps you can follow <a href="../2018-08-08-creating-an-openstack-server-on-ovh-public-cloud">the first blog post</a> in this series that will walk you through completing those steps. 
 
 I will attempt in this post to present the options that are available to OVH public cloud customers along side the choices I made that were specific to my Openstack server.
 
